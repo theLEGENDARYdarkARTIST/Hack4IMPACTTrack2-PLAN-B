@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Diagnosis & Risk Engine - HealthPulse AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --blue-primary: #1B6FEB;
+            --blue-deep: #0D4FC4;
+            --blue-light: #EBF2FF;
+            --teal: #0ABFBC;
+            --coral: #FF6B6B;
+            --coral-light: #FFF0F0;
+            --amber: #F59E0B;
+            --amber-light: #FEF3C7;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --purple: #7C3AED;
+            --purple-light: #EDE9FE;
+            --bg: #F4F7FC;
+            --card: #FFFFFF;
+            --text-primary: #0F1C3F;
+            --text-secondary: #6B7A99;
+            --text-muted: #A0ABBE;
+            --border: #E8EDF5;
+            --sidebar-w: 260px;
+            --shadow-sm: 0 2px 8px rgba(27, 111, 235, 0.06);
+            --shadow-md: 0 8px 24px rgba(27, 111, 235, 0.10);
+            --shadow-lg: 0 16px 40px rgba(27, 111, 235, 0.14);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden
+        }
+
+        .app-shell {
+            display: flex;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 200;
+            padding: 28px 0;
+            transition: transform .32s cubic-bezier(.4, 0, .2, 1)
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px 26px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--blue-primary), var(--blue-deep));
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 12px rgba(27, 111, 235, .3)
+        }
+
+        .logo-text {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-primary)
+        }
+
+        .logo-text span {
+            color: var(--blue-primary)
+        }
+
+        .sidebar-nav {
+            padding: 18px 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 10px 10px 4px;
+            margin-top: 6px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .18s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            position: relative;
+            text-decoration: none
+        }
+
+        .nav-item:hover {
+            background: var(--blue-light);
+            color: var(--blue-primary)
+        }
+
+        .nav-item.active {
+            background: var(--blue-light);
+            color: var(--blue-primary);
+            font-weight: 600
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 22%;
+            bottom: 22%;
+            width: 3px;
+            border-radius: 4px;
+            background: var(--blue-primary)
+        }
+
+        .sidebar-user {
+            padding: 14px 20px;
+            margin: 0 14px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px
+        }
+
+        .sidebar-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-primary), var(--teal));
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: #fff;
+            flex-shrink: 0
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, .88);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(232, 237, 245, .8);
+            padding: 0 32px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50
+        }
+
+        .topbar-greeting {
+            flex: 1
+        }
+
+        .topbar-greeting h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(110deg, var(--text-primary) 0%, var(--blue-primary) 120%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -.3px
+        }
+
+        .search-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 30px;
+            padding: 8px 16px;
+            min-width: 210px;
+            transition: all .2s;
+            cursor: text
+        }
+
+        .search-pill:focus-within {
+            border-color: var(--blue-primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(27, 111, 235, .08)
+        }
+
+        .search-pill input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 13px;
+            color: var(--text-primary);
+            width: 100%
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: all .2s;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .icon-btn:hover {
+            background: var(--blue-light);
+            border-color: var(--blue-primary);
+            transform: scale(1.05)
+        }
+
+        .icon-btn .dot {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--coral);
+            border: 2px solid #fff
+        }
+
+        .topbar-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-primary), var(--teal));
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 0 0 3px rgba(27, 111, 235, .2), 0 2px 10px rgba(27, 111, 235, .3);
+            transition: box-shadow .2s;
+            flex-shrink: 0
+        }
+
+        .page-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            padding: 26px 32px;
+            max-width: 1440px;
+            width: 100%
+        }
+
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            gap: 22px
+        }
+
+        .panel-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm)
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 18px
+        }
+
+        .diagnostic-item {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            transition: all .2s
+        }
+
+        .diagnostic-item:hover {
+            border-color: var(--blue-primary);
+            box-shadow: var(--shadow-md)
+        }
+
+        .diagnostic-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            background: var(--blue-light)
+        }
+
+        .diagnostic-content {
+            flex: 1
+        }
+
+        .diagnostic-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .diagnostic-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px
+        }
+
+        .diagnostic-risk {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block
+        }
+
+        .risk-high {
+            background: rgba(255, 107, 107, .2);
+            color: var(--coral)
+        }
+
+        .risk-medium {
+            background: rgba(245, 158, 11, .2);
+            color: var(--amber)
+        }
+
+        .risk-low {
+            background: rgba(16, 185, 129, .2);
+            color: var(--green)
+        }
+
+        .btn-primary {
+            background: var(--blue-primary);
+            color: #fff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Plus Jakarta Sans', sans-serif
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-deep);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md)
+        }
+
+        @media(max-width:900px) {
+            .sidebar {
+                transform: translateX(-100%)
+            }
+
+            .main-content {
+                margin-left: 0
+            }
+
+            .topbar {
+                display: none
+            }
+
+            .page-body {
+                padding: 14px 14px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i data-lucide="activity" style="width:20px;height:20px;color:#fff"></i></div>
+                <div class="logo-text">Health<span>Pulse</span> AI</div>
+            </div>
+            <nav class="sidebar-nav">
+                <span class="nav-label">Features</span>
+                <a class="nav-item" href="dashboard.html"><i data-lucide="layout-dashboard"
+                        style="width:18px;height:18px"></i>Dashboard</a>
+                <a class="nav-item active" href="diagnosis.html"><i data-lucide="activity"
+                        style="width:18px;height:18px"></i>AI Diagnosis</a>
+                <a class="nav-item" href="escalation.html"><i data-lucide="alert-triangle"
+                        style="width:18px;height:18px"></i>Escalation</a>
+                <a class="nav-item" href="hospital-finder.html"><i data-lucide="map-pin"
+                        style="width:18px;height:18px"></i>Hospital Finder</a>
+                <a class="nav-item" href="specialist-routing.html"><i data-lucide="stethoscope"
+                        style="width:18px;height:18px"></i>Specialist Route</a>
+                <a class="nav-item" href="chat.html"><i data-lucide="message-circle"
+                        style="width:18px;height:18px"></i>Chat Assistant</a>
+                <a class="nav-item" href="wearables.html"><i data-lucide="watch"
+                        style="width:18px;height:18px"></i>Wearables</a>
+                <a class="nav-item" href="alerts.html"><i data-lucide="bell" style="width:18px;height:18px"></i>Health
+                    Alerts</a>
+                <a class="nav-item" href="insights.html"><i data-lucide="brain" style="width:18px;height:18px"></i>AI
+                    Insights</a>
+                <span class="nav-label">Account</span>
+                <a class="nav-item" href="messages.html"><i data-lucide="mail"
+                        style="width:18px;height:18px"></i>Messages<span class="nav-badge">5</span></a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">OB</div>
+                <div>
+                    <div class="sidebar-user-name">Oliver Brooks</div>
+                    <div class="sidebar-user-role">Patient #HP-2847</div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-greeting">
+                    <h1>AI Diagnosis & Risk Engine</h1>
+                </div>
+                <div class="topbar-actions">
+                    <div class="icon-btn"><i data-lucide="bell"
+                            style="width:17px;height:17px;color:var(--text-secondary)"></i></div>
+                    <div class="topbar-avatar">OB</div>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <div class="page-container">
+                    <div class="panel-card">
+                        <div class="panel-title">Your Health Assessment</div>
+                        <div class="diagnostic-item">
+                            <div class="diagnostic-icon" style="background:var(--coral-light)"><i
+                                    data-lucide="heart-pulse" style="width:24px;height:24px;color:var(--coral)"></i>
+                            </div>
+                            <div class="diagnostic-content">
+                                <div class="diagnostic-title">Cardiovascular Health</div>
+                                <div class="diagnostic-desc">Your heart rate shows slight elevation. Consider regular
+                                    monitoring.</div>
+                                <div class="diagnostic-risk risk-medium">Medium Risk</div>
+                            </div>
+                        </div>
+                        <div class="diagnostic-item">
+                            <div class="diagnostic-icon" style="background:var(--blue-light)"><i data-lucide="droplets"
+                                    style="width:24px;height:24px;color:var(--blue-primary)"></i></div>
+                            <div class="diagnostic-content">
+                                <div class="diagnostic-title">Blood Oxygen Level</div>
+                                <div class="diagnostic-desc">SpO₂ at 98% - Within optimal range.</div>
+                                <div class="diagnostic-risk risk-low">Low Risk</div>
+                            </div>
+                        </div>
+                        <div class="diagnostic-item">
+                            <div class="diagnostic-icon" style="background:var(--purple-light)"><i data-lucide="moon"
+                                    style="width:24px;height:24px;color:var(--purple)"></i></div>
+                            <div class="diagnostic-content">
+                                <div class="diagnostic-title">Sleep Pattern</div>
+                                <div class="diagnostic-desc">6.4 hours average - Below recommended 7-9 hours.</div>
+                                <div class="diagnostic-risk risk-medium">Medium Risk</div>
+                            </div>
+                        </div>
+                        <div class="diagnostic-item">
+                            <div class="diagnostic-icon" style="background:var(--amber-light)"><i data-lucide="activity"
+                                    style="width:24px;height:24px;color:var(--amber)"></i></div>
+                            <div class="diagnostic-content">
+                                <div class="diagnostic-title">Physical Activity</div>
+                                <div class="diagnostic-desc">7,200 steps today - Meeting daily target.</div>
+                                <div class="diagnostic-risk risk-low">Low Risk</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="panel-title">AI Recommendations</div>
+                        <div
+                            style="padding:16px;background:var(--coral-light);border-radius:12px;margin-bottom:12px;border-left:4px solid var(--coral)">
+                            <div style="font-weight:600;margin-bottom:6px">Priority: Improve Sleep Quality</div>
+                            <div style="font-size:13px;color:var(--text-secondary)">Consistent sleep affects
+                                cardiovascular health. Try maintaining regular sleep schedule.</div>
+                        </div>
+                        <div
+                            style="padding:16px;background:var(--amber-light);border-radius:12px;margin-bottom:12px;border-left:4px solid var(--amber)">
+                            <div style="font-weight:600;margin-bottom:6px">Monitor: Heart Rate Trends</div>
+                            <div style="font-size:13px;color:var(--text-secondary)">Schedule a check-up with your
+                                cardiologist to review recent elevation.</div>
+                        </div>
+                        <div
+                            style="padding:16px;background:var(--green-light);border-radius:12px;border-left:4px solid var(--green)">
+                            <div style="font-weight:600;margin-bottom:6px">Good: Continue Exercise Routine</div>
+                            <div style="font-size:13px;color:var(--text-secondary)">Your activity levels are excellent.
+                                Maintain this pace.</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" onclick="alert('Detailed AI Analysis Report Generated!')">Generate Full
+                        Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', function () { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); this.classList.add('active') }));
+    </script>
+</body>
+
+</html>

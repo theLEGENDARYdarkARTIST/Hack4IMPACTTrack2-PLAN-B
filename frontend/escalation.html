@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Escalation System - HealthPulse AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --blue-primary: #1B6FEB;
+            --blue-deep: #0D4FC4;
+            --blue-light: #EBF2FF;
+            --teal: #0ABFBC;
+            --coral: #FF6B6B;
+            --coral-light: #FFF0F0;
+            --amber: #F59E0B;
+            --amber-light: #FEF3C7;
+            --green: #10B981;
+            --green-light: #D1FAE5;
+            --purple: #7C3AED;
+            --purple-light: #EDE9FE;
+            --bg: #F4F7FC;
+            --card: #FFFFFF;
+            --text-primary: #0F1C3F;
+            --text-secondary: #6B7A99;
+            --text-muted: #A0ABBE;
+            --border: #E8EDF5;
+            --sidebar-w: 260px;
+            --shadow-sm: 0 2px 8px rgba(27, 111, 235, 0.06);
+            --shadow-md: 0 8px 24px rgba(27, 111, 235, 0.10);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh
+        }
+
+        .app-shell {
+            display: flex;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 200;
+            padding: 28px 0
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 24px 26px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--blue-primary), var(--blue-deep));
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 12px rgba(27, 111, 235, .3)
+        }
+
+        .logo-text {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            color: var(--text-primary)
+        }
+
+        .logo-text span {
+            color: var(--blue-primary)
+        }
+
+        .sidebar-nav {
+            padding: 18px 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 10px 10px 4px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .18s;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none
+        }
+
+        .nav-item:hover {
+            background: var(--blue-light);
+            color: var(--blue-primary)
+        }
+
+        .nav-item.active {
+            background: var(--blue-light);
+            color: var(--blue-primary);
+            font-weight: 600
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 22%;
+            bottom: 22%;
+            width: 3px;
+            background: var(--blue-primary);
+            position: absolute
+        }
+
+        .sidebar-user {
+            padding: 14px 20px;
+            margin: 0 14px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px
+        }
+
+        .sidebar-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue-primary), var(--teal));
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, .88);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50
+        }
+
+        .topbar-greeting h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(110deg, var(--text-primary) 0%, var(--blue-primary) 120%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .icon-btn:hover {
+            background: var(--blue-light);
+            border-color: var(--blue-primary)
+        }
+
+        .page-body {
+            padding: 26px 32px;
+            max-width: 1440px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 22px
+        }
+
+        .panel-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm)
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 18px
+        }
+
+        .escalation-timeline {
+            position: relative;
+            padding: 20px 0
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 24px;
+            position: relative
+        }
+
+        .timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--blue-primary);
+            position: absolute;
+            left: 0;
+            top: 4px;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px var(--blue-primary)
+        }
+
+        .timeline-item.active .timeline-dot {
+            background: var(--coral);
+            border-color: #fff;
+            box-shadow: 0 0 0 2px var(--coral)
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 6px;
+            top: 24px;
+            width: 2px;
+            height: calc(100% + 4px);
+            background: var(--border)
+        }
+
+        .timeline-item:last-child .timeline-line {
+            display: none
+        }
+
+        .timeline-content {
+            margin-left: 32px;
+            padding: 14px 16px;
+            background: var(--bg);
+            border-radius: 10px;
+            border-left: 3px solid var(--blue-primary)
+        }
+
+        .timeline-item.active .timeline-content {
+            background: var(--coral-light);
+            border-left-color: var(--coral)
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--blue-primary);
+            margin-bottom: 4px
+        }
+
+        .timeline-item.active .timeline-time {
+            color: var(--coral)
+        }
+
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px
+        }
+
+        .timeline-desc {
+            font-size: 12px;
+            color: var(--text-muted)
+        }
+
+        .btn-primary {
+            background: var(--blue-primary);
+            color: #fff;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 12px
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-deep);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md)
+        }
+
+        .escalation-alert {
+            padding: 16px;
+            background: var(--coral-light);
+            border-radius: 12px;
+            border-left: 4px solid var(--coral);
+            margin-bottom: 16px
+        }
+
+        .escalation-alert strong {
+            color: var(--coral)
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon"><i data-lucide="activity" style="width:20px;height:20px;color:#fff"></i></div>
+                <div class="logo-text">Health<span>Pulse</span> AI</div>
+            </div>
+            <nav class="sidebar-nav">
+                <span class="nav-label">Features</span>
+                <a class="nav-item" href="dashboard.html"><i data-lucide="layout-dashboard"
+                        style="width:18px;height:18px"></i>Dashboard</a>
+                <a class="nav-item" href="diagnosis.html"><i data-lucide="activity"
+                        style="width:18px;height:18px"></i>AI Diagnosis</a>
+                <a class="nav-item active" href="escalation.html"><i data-lucide="alert-triangle"
+                        style="width:18px;height:18px"></i>Escalation</a>
+                <a class="nav-item" href="hospital-finder.html"><i data-lucide="map-pin"
+                        style="width:18px;height:18px"></i>Hospital Finder</a>
+                <a class="nav-item" href="specialist-routing.html"><i data-lucide="stethoscope"
+                        style="width:18px;height:18px"></i>Specialist Route</a>
+                <a class="nav-item" href="chat.html"><i data-lucide="message-circle"
+                        style="width:18px;height:18px"></i>Chat Assistant</a>
+                <a class="nav-item" href="wearables.html"><i data-lucide="watch"
+                        style="width:18px;height:18px"></i>Wearables</a>
+                <a class="nav-item" href="alerts.html"><i data-lucide="bell" style="width:18px;height:18px"></i>Health
+                    Alerts</a>
+                <a class="nav-item" href="insights.html"><i data-lucide="brain" style="width:18px;height:18px"></i>AI
+                    Insights</a>
+                <span class="nav-label">Account</span>
+                <a class="nav-item" href="messages.html"><i data-lucide="mail"
+                        style="width:18px;height:18px"></i>Messages</a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">OB</div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <header class="topbar">
+                <div class="topbar-greeting">
+                    <h1>Automated Escalation System</h1>
+                </div>
+                <div class="topbar-actions">
+                    <div class="icon-btn"><i data-lucide="bell" style="width:17px;height:17px"></i></div>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <div class="panel-card">
+                    <div class="panel-title">Escalation Timeline</div>
+                    <div class="escalation-alert">
+                        <strong>⚠️ Current Status:</strong> Level 1 - Under Monitoring
+                    </div>
+                    <div class="escalation-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Step 1 - Detection</div>
+                                <div class="timeline-title">Initial Alert Triggered</div>
+                                <div class="timeline-desc">Elevated heart rate detected at 95 bpm</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Step 2 - Analysis</div>
+                                <div class="timeline-title">AI Assessment In Progress</div>
+                                <div class="timeline-desc">Analyzing patterns and consulting guidelines</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Step 3 - Notification</div>
+                                <div class="timeline-title">Patient Notified</div>
+                                <div class="timeline-desc">You received an alert notification</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item active">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-line"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Step 4 - Recommendation</div>
+                                <div class="timeline-title">Specialist Routing Active</div>
+                                <div class="timeline-desc">System is routing to available cardiologists</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-time">Step 5 - Action</div>
+                                <div class="timeline-title">Awaiting Response</div>
+                                <div class="timeline-desc">Specialist will contact you shortly</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="alert('Emergency services contacted!')">Request Immediate
+                        Escalation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', function () { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); this.classList.add('active') }));
+    </script>
+</body>
+
+</html>
