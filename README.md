@@ -1,9 +1,15 @@
 TEAM : PLAN B
+
 TEAM : 
       1. AAKRISHTA SINHA (23051318)
       2. SHREYA (23051381)
       3. HIMANSHU MISHRA (23053534)
       4. HARSH VERMA (23051751)
+      
+DOMAIN : AI & Automation in Smart Healthcare
+
+APPROVED PROBLEM STATEMENT :
+Hospitals and healthcare staff often struggle to monitor multiple patients continuously, which can lead to delayed responses in critical situations. Important warning signs are sometimes missed because monitoring is manual or not real-time. This problem is faced by doctors, nurses, and patients, especially in busy hospitals with limited staff. Delays in identifying patient deterioration can lead to serious complications or even loss of life. Solving this ensures faster response, better care, and improved patient safety.
 
 # 🏥 HealthPulse — AI-Powered Real-Time Healthcare Platform
 
