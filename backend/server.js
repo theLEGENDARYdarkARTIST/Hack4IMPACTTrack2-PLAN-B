@@ -1,49 +1,66 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const path = require("path");
 require("dotenv").config();
 
+// ── ADD THESE TWO LINES ──────────────────────────
+const http = require("http");
+const { Server } = require("socket.io");
+// ─────────────────────────────────────────────────
+
 const app = express();
+
+// ── WRAP app IN http server ──────────────────────
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: { origin: "*", methods: ["GET", "POST"] }
+});
+// ─────────────────────────────────────────────────
 
 app.use(cors({
     origin: true,
     credentials: true
-})); // Modern CORS setup for Fitbit sessions
-app.use(express.json());
-
-// Serve the front-end web pages natively through localhost:3000
-const path = require("path");
+}));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, "../frontend")));
 
-// ✅ MongoDB Connection
+// MongoDB Connection
+console.log("MONGO_URI:", process.env.MONGO_URI); // Debugging dotenv loading
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("MongoDB Connected"))
-    .catch((err) => console.log(err));
+    .catch((err) => console.error("MongoDB Connection Error:", err));
 
-// Test Fitbit auth
-app.get("/", (req, res) => {
-    res.json({
-        message: "HealthPulse Backend Ready",
-        fitbitEndpoints: ["/api/fitbit/login", "/api/fitbit/summary", "/api/fitbit/heartrate", "/api/fitbit/sleep"],
-        status: "⚠️ Check Fitbit auth at /api/fitbit/login (or check frontend)"
-    });
-});
+// Routes
 const diagnosisRoute = require("./routes/diagnosis");
-app.use("/api/diagnosis", diagnosisRoute);
+const hospitalRoutes = require("./routes/hospitals");
+const doctorRoutes = require("./routes/doctors");
+const fitbitRoutes = require("./routes/fitbit");
 
-// Handle Fitbit OAuth redirect URI root path
+app.use("/api/diagnosis", diagnosisRoute);
+app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/doctors", doctorRoutes);
+app.use("/api/fitbit", fitbitRoutes);
+const prescriptionRoutes = require('./routes/prescription');
+app.use('/api/prescription', prescriptionRoutes);
+// ── SOCKET.IO SIGNALING ──────────────────────────
+const videoSignaling = require("./routes/video");
+videoSignaling(io);
+// ─────────────────────────────────────────────────
+
 app.get("/callback", (req, res) => {
     res.redirect("/api/fitbit" + req.originalUrl);
 });
 
+app.get("/", (req, res) => {
+    res.json({ message: "HealthPulse Backend Ready" });
+});
+
 const PORT = process.env.PORT || 3000;
-const hospitalRoutes = require("./routes/hospitals");
-const doctorRoutes = require("./routes/doctors");
 
-app.use("/api/hospitals", hospitalRoutes);
-app.use("/api/doctors", doctorRoutes);
-app.use("/api/fitbit", require("./routes/fitbit"));
-
-app.listen(PORT, () => {
+// ── MUST BE server.listen, NOT app.listen ────────
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+// ─────────────────────────────────────────────────

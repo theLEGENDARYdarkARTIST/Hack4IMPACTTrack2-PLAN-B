@@ -42,7 +42,7 @@ const doctors = [
 
     { name: "Dr. Aniruddh Dash", specialization: "Orthopedic", phone: "MaxKnee Clinic", hospital: "MaxKnee Clinic" },
     { name: "Dr. Sunil Kumar Dash", specialization: "Orthopedic", phone: "AMRI Hospital", hospital: "AMRI Hospitals" },
-    { name: "Dr. Niranjan Kar", specialization: "Orthopedic", phone: "Dr Kar Clinic", hospital: "Dr Kar’s Excellence Clinic" },
+    { name: "Dr. Niranjan Kar", specialization: "Orthopedic", phone: "Dr Kar Clinic", hospital: "Dr KarΓÇÖs Excellence Clinic" },
     { name: "Dr. Dibya Singha Das", specialization: "Orthopedic", phone: "Ortho One Clinic", hospital: "Ortho One Clinic" },
     { name: "Dr. Ravi Sankar Katragadda", specialization: "Orthopedic", phone: "Shree Hospital", hospital: "Shree Hospital" },
     { name: "Dr. Debasish Mishra", specialization: "Orthopedic", phone: "Clinic Contact", hospital: "Private Clinic" },
@@ -91,7 +91,7 @@ const doctors = [
 async function seedData() {
     await Doctor.deleteMany();
     await Doctor.insertMany(doctors);
-    console.log("✅ Doctors seeded successfully");
+    console.log("Γ£à Doctors seeded successfully");
     process.exit();
 }
 

@@ -1,0 +1,47 @@
+﻿node : C:\Users\KIIT0001\Deskt
+op\HACK\backend\server.js:1
+At line:1 char:1
++ node server.js 2>&1 | 
+Out-File -FilePath 
+server_error.log -Encoding U 
+...
++ ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (C:\Users\  
+  KIIT00...end\server.js:1:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+∩┐╜∩┐╜c
+
+
+SyntaxError: Invalid or 
+unexpected token
+    at wrapSafe (node:internal
+/modules/cjs/loader:1512:18)
+    at Module._compile (node:i
+nternal/modules/cjs/loader:153
+4:20)
+    at Object..js (node:intern
+al/modules/cjs/loader:1699:10)
+    at Module.load (node:inter
+nal/modules/cjs/loader:1313:32
+)
+    at Function._load (node:in
+ternal/modules/cjs/loader:1123
+:12)
+    at 
+TracingChannel.traceSync (node
+:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:in
+ternal/modules/cjs/loader:217:
+24)
+    at Function.executeUserEnt
+ryPoint [as runMain] (node:int
+ernal/modules/run_main:170:5)
+    at node:internal/main/run_
+main_module:36:49
+
+Node.js v22.13.0
