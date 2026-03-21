@@ -1,5 +1,9 @@
 TEAM : PLAN B
-
+TEAM : 
+      1. AAKRISHTA SINHA (23051318)
+      2. HIMANSHU MISHRA (23053534)
+      3. SHREYA (23051381)
+      4. HARSH VERMA (23051751)
 
 # 🏥 HealthPulse — AI-Powered Real-Time Healthcare Platform
 
